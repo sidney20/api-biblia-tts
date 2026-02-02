@@ -1,18 +1,27 @@
+import os
+import uuid
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 from TTS.api import TTS
-import uuid
 
-app = FastAPI()
+app = FastAPI(
+    title="API Bíblia Falada",
+    description="Gera áudio da Bíblia em português usando TTS",
+    version="1.0.0"
+)
 
-# 🔐 SUA CHAVE SECRETA
-API_KEY = "minha_chave_biblia_123"
+# 🔐 API KEY VEM DO AMBIENTE (Railway / Render)
+API_KEY = os.getenv("API_KEY")
 
-# 📘 Texto que vem do app
+# ❗ Segurança: se esquecer de configurar no servidor
+if not API_KEY:
+    raise RuntimeError("API_KEY não configurada nas variáveis de ambiente")
+
+# 📘 Modelo do texto recebido
 class TextoBiblia(BaseModel):
     texto: str
 
-# 🔊 Carrega o TTS (uma vez só)
+# 🔊 Carrega o modelo TTS UMA ÚNICA VEZ
 tts = TTS(
     model_name="tts_models/multilingual/multi-dataset/xtts_v2",
     gpu=False
@@ -23,15 +32,17 @@ def gerar_audio(
     dados: TextoBiblia,
     x_api_key: str = Header(None)
 ):
-    # 🔐 Confere a chave
+    # 🔐 Validação da API Key
     if x_api_key != API_KEY:
         raise HTTPException(
             status_code=401,
             detail="API Key inválida"
         )
 
+    # 🧾 Nome único do arquivo
     nome_arquivo = f"audio_{uuid.uuid4().hex}.wav"
 
+    # 🔊 Gera o áudio
     tts.tts_to_file(
         text=dados.texto,
         language="pt",
@@ -40,5 +51,6 @@ def gerar_audio(
 
     return {
         "status": "ok",
-        "arquivo": nome_arquivo
+        "arquivo": nome_arquivo,
+        "mensagem": "Áudio gerado com sucesso"
     }

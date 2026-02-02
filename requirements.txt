@@ -1,5 +1,7 @@
 fastapi
 uvicorn
 TTS==0.22.0
-torch
+torch==2.1.2
+torchaudio==2.1.2
+soundfile
 numpy
