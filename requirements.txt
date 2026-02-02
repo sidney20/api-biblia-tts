@@ -1,8 +1,5 @@
 fastapi
 uvicorn
-TTS
-pydantic
-soundfile
+TTS==0.22.0
 torch
-torchaudio
-
+numpy
