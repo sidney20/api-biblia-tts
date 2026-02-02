@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+TTS
+pydantic
+soundfile
+torch
+torchaudio
+
